@@ -9,7 +9,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * FORM 1: Giao diện Đăng nhập hệ thống (Java Swing JFrame)
+ * FORM 1: Giao dien Dang nhap he thong (Java Swing JFrame)
  */
 public class LoginForm extends JFrame {
     private JTextField txtUsername;
@@ -33,7 +33,7 @@ public class LoginForm extends JFrame {
 
         // Header Panel
         JPanel headerPanel = new JPanel();
-        headerPanel.setBackground(new Color(13, 110, 253)); // #0d6efd
+        headerPanel.setBackground(new Color(13, 110, 253));
         headerPanel.setPreferredSize(new Dimension(getWidth(), 70));
         headerPanel.setLayout(new BorderLayout());
 
@@ -48,7 +48,7 @@ public class LoginForm extends JFrame {
         lblSub.setBorder(new EmptyBorder(0, 0, 8, 0));
         headerPanel.add(lblSub, BorderLayout.SOUTH);
 
-        // Form nhập liệu
+        // Form nhap lieu
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setBackground(Color.WHITE);
         formPanel.setBorder(new EmptyBorder(25, 30, 15, 30));
@@ -80,7 +80,7 @@ public class LoginForm extends JFrame {
 
         JLabel lblHint = new JLabel("[!] Tai khoan mac dinh: admin | Mat khau: 123456");
         lblHint.setFont(new Font("Segoe UI", Font.ITALIC, 12));
-        lblHint.setForeground(new Color(100, 100, 100));
+        lblHint.setForeground(new Color(80, 80, 80));
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
         formPanel.add(lblHint, gbc);
 
@@ -89,11 +89,11 @@ public class LoginForm extends JFrame {
         btnPanel.setBackground(Color.WHITE);
 
         btnLogin = new JButton("Dang Nhap");
-        styleButton(btnLogin, new Color(13, 110, 253), Color.WHITE);
+        styleButton(btnLogin);
         btnLogin.setPreferredSize(new Dimension(140, 38));
 
         btnExit = new JButton("Thoat");
-        styleButton(btnExit, new Color(108, 117, 125), Color.WHITE);
+        styleButton(btnExit);
         btnExit.setPreferredSize(new Dimension(100, 38));
 
         btnPanel.add(btnLogin);
@@ -110,14 +110,17 @@ public class LoginForm extends JFrame {
         setContentPane(mainPanel);
     }
 
-    private void styleButton(JButton btn, Color bg, Color fg) {
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btn.setBackground(bg);
-        btn.setForeground(fg);
+    private void styleButton(JButton btn) {
+        btn.setForeground(Color.BLACK);
+        btn.setBackground(new Color(230, 230, 230));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btn.setOpaque(true);
         btn.setContentAreaFilled(true);
         btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createLineBorder(bg.darker(), 1));
+        btn.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1),
+                BorderFactory.createEmptyBorder(5, 15, 5, 15)
+        ));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 

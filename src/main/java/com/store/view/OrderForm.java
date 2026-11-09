@@ -72,7 +72,7 @@ public class OrderForm extends JFrame {
 
         // 1. Header & Dieu Huong
         JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(new Color(25, 135, 84)); // #198754
+        headerPanel.setBackground(new Color(25, 135, 84));
         headerPanel.setPreferredSize(new Dimension(getWidth(), 55));
 
         JLabel lblTitle = new JLabel("QUAN LY BAN HANG & LAP HOA DON", JLabel.CENTER);
@@ -83,7 +83,7 @@ public class OrderForm extends JFrame {
         JPanel navPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8));
         navPanel.setBackground(new Color(25, 135, 84));
         btnBackToProducts = new JButton("<< Ve Quan Ly San Pham");
-        styleButton(btnBackToProducts, Color.WHITE, new Color(25, 135, 84));
+        styleButton(btnBackToProducts);
         btnBackToProducts.setPreferredSize(new Dimension(200, 36));
         navPanel.add(btnBackToProducts);
         headerPanel.add(navPanel, BorderLayout.WEST);
@@ -114,12 +114,12 @@ public class OrderForm extends JFrame {
         row2.add(spnQuantity);
 
         btnAddToCart = new JButton("Them Vao Gio");
-        styleButton(btnAddToCart, new Color(13, 110, 253), Color.WHITE); // #0d6efd
+        styleButton(btnAddToCart);
         btnAddToCart.setPreferredSize(new Dimension(140, 32));
         row2.add(btnAddToCart);
 
         btnRemoveFromCart = new JButton("Xoa Mon Chon");
-        styleButton(btnRemoveFromCart, new Color(108, 117, 125), Color.WHITE);
+        styleButton(btnRemoveFromCart);
         btnRemoveFromCart.setPreferredSize(new Dimension(130, 32));
         row2.add(btnRemoveFromCart);
 
@@ -148,7 +148,7 @@ public class OrderForm extends JFrame {
         lblTotalCartAmount.setForeground(new Color(220, 53, 69));
 
         btnCheckout = new JButton("THANH TOAN & LAP HOA DON (TRANSACTION)");
-        styleButton(btnCheckout, new Color(25, 135, 84), Color.WHITE); // #198754
+        styleButton(btnCheckout);
         btnCheckout.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnCheckout.setPreferredSize(new Dimension(380, 42));
 
@@ -224,15 +224,17 @@ public class OrderForm extends JFrame {
         setContentPane(mainPanel);
     }
 
-    private void styleButton(JButton btn, Color bg, Color fg) {
+    private void styleButton(JButton btn) {
+        btn.setForeground(Color.BLACK);
+        btn.setBackground(new Color(230, 230, 230));
         btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btn.setBackground(bg);
-        btn.setForeground(fg);
         btn.setOpaque(true);
         btn.setContentAreaFilled(true);
-        btn.setBorderPainted(true);
-        btn.setBorder(BorderFactory.createLineBorder(bg.darker(), 1));
         btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1),
+                BorderFactory.createEmptyBorder(5, 15, 5, 15)
+        ));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 

@@ -73,7 +73,7 @@ public class ProductManagementForm extends JFrame {
         JPanel topContainer = new JPanel(new BorderLayout(5, 5));
 
         JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(new Color(13, 110, 253)); // #0d6efd
+        headerPanel.setBackground(new Color(13, 110, 253));
         headerPanel.setPreferredSize(new Dimension(getWidth(), 55));
         
         JLabel lblHeader = new JLabel("QUAN LY SAN PHAM & KHO HANG", JLabel.CENTER);
@@ -86,11 +86,11 @@ public class ProductManagementForm extends JFrame {
         navPanel.setBackground(new Color(13, 110, 253));
 
         btnOpenBillingForm = new JButton("Mo Form Ban Hang >>");
-        styleButton(btnOpenBillingForm, new Color(25, 135, 84), Color.WHITE); // #198754
+        styleButton(btnOpenBillingForm);
         btnOpenBillingForm.setPreferredSize(new Dimension(190, 36));
 
         btnLogout = new JButton("Dang Xuat");
-        styleButton(btnLogout, new Color(220, 53, 69), Color.WHITE); // #dc3545
+        styleButton(btnLogout);
         btnLogout.setPreferredSize(new Dimension(110, 36));
 
         navPanel.add(btnOpenBillingForm);
@@ -107,12 +107,12 @@ public class ProductManagementForm extends JFrame {
         searchPanel.add(txtSearch);
 
         btnSearch = new JButton("Tim Kiem");
-        styleButton(btnSearch, new Color(13, 110, 253), Color.WHITE);
+        styleButton(btnSearch);
         btnSearch.setPreferredSize(new Dimension(110, 32));
         searchPanel.add(btnSearch);
 
         btnRefreshAll = new JButton("Xem Tat Ca");
-        styleButton(btnRefreshAll, new Color(108, 117, 125), Color.WHITE);
+        styleButton(btnRefreshAll);
         btnRefreshAll.setPreferredSize(new Dimension(120, 32));
         searchPanel.add(btnRefreshAll);
 
@@ -150,10 +150,10 @@ public class ProductManagementForm extends JFrame {
         btnDelete = new JButton("Ngung Ban (Xoa)");
         btnClear = new JButton("Lam Moi");
 
-        styleButton(btnAdd, new Color(25, 135, 84), Color.WHITE);    // Xanh la #198754
-        styleButton(btnUpdate, new Color(13, 110, 253), Color.WHITE); // Xanh duong #0d6efd
-        styleButton(btnDelete, new Color(220, 53, 69), Color.WHITE);  // Do #dc3545
-        styleButton(btnClear, new Color(248, 249, 250), Color.BLACK); // Sang, chu den ro rang
+        styleButton(btnAdd);
+        styleButton(btnUpdate);
+        styleButton(btnDelete);
+        styleButton(btnClear);
 
         btnCrudPanel.add(btnAdd);
         btnCrudPanel.add(btnUpdate);
@@ -255,15 +255,17 @@ public class ProductManagementForm extends JFrame {
         setContentPane(mainPanel);
     }
 
-    private void styleButton(JButton btn, Color bg, Color fg) {
+    private void styleButton(JButton btn) {
+        btn.setForeground(Color.BLACK);
+        btn.setBackground(new Color(230, 230, 230));
         btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btn.setBackground(bg);
-        btn.setForeground(fg);
         btn.setOpaque(true);
         btn.setContentAreaFilled(true);
-        btn.setBorderPainted(true);
-        btn.setBorder(BorderFactory.createLineBorder(bg.darker(), 1));
         btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1),
+                BorderFactory.createEmptyBorder(5, 15, 5, 15)
+        ));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
