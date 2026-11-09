@@ -22,8 +22,8 @@ public class LoginForm extends JFrame {
     }
 
     private void initComponents() {
-        setTitle("ĐĂNG NHẬP HỆ THỐNG - QUẢN LÝ CỬA HÀNG");
-        setSize(460, 350);
+        setTitle("DANG NHAP HE THONG - QUAN LY CUA HANG");
+        setSize(460, 360);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -33,17 +33,17 @@ public class LoginForm extends JFrame {
 
         // Header Panel
         JPanel headerPanel = new JPanel();
-        headerPanel.setBackground(new Color(24, 119, 242));
+        headerPanel.setBackground(new Color(13, 110, 253)); // #0d6efd
         headerPanel.setPreferredSize(new Dimension(getWidth(), 70));
         headerPanel.setLayout(new BorderLayout());
 
-        JLabel lblTitle = new JLabel("🏪 ĐĂNG NHẬP HỆ THỐNG", JLabel.CENTER);
+        JLabel lblTitle = new JLabel("DANG NHAP HE THONG", JLabel.CENTER);
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
         lblTitle.setForeground(Color.WHITE);
         headerPanel.add(lblTitle, BorderLayout.CENTER);
 
-        JLabel lblSub = new JLabel("Hệ Thống Quản Lý Cửa Hàng & Bán Hàng (Store Management)", JLabel.CENTER);
-        lblSub.setFont(new Font("Segoe UI", Font.ITALIC, 12));
+        JLabel lblSub = new JLabel("He Thong Quan Ly Cua Hang & Ban Hang (Store Management)", JLabel.CENTER);
+        lblSub.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblSub.setForeground(new Color(230, 240, 255));
         lblSub.setBorder(new EmptyBorder(0, 0, 8, 0));
         headerPanel.add(lblSub, BorderLayout.SOUTH);
@@ -56,59 +56,51 @@ public class LoginForm extends JFrame {
         gbc.insets = new Insets(8, 8, 8, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel lblUser = new JLabel("Tên đăng nhập:");
+        JLabel lblUser = new JLabel("Ten dang nhap:");
         lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
         txtUsername = new JTextField(15);
         txtUsername.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtUsername.setText("admin"); // Gợi ý tài khoản mặc định
+        txtUsername.setText("admin");
 
-        JLabel lblPass = new JLabel("Mật khẩu:");
+        JLabel lblPass = new JLabel("Mat khau:");
         lblPass.setFont(new Font("Segoe UI", Font.BOLD, 14));
         txtPassword = new JPasswordField(15);
         txtPassword.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtPassword.setText("123456"); // Gợi ý mật khẩu mặc định
+        txtPassword.setText("123456");
 
-        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.3;
+        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.35;
         formPanel.add(lblUser, gbc);
-        gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 0.7;
+        gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 0.65;
         formPanel.add(txtUsername, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.3;
+        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.35;
         formPanel.add(lblPass, gbc);
-        gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 0.7;
+        gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 0.65;
         formPanel.add(txtPassword, gbc);
 
-        // Hướng dẫn tài khoản
-        JLabel lblHint = new JLabel("💡 Tài khoản mẫu: admin | Mật khẩu: 123456");
+        JLabel lblHint = new JLabel("[!] Tai khoan mac dinh: admin | Mat khau: 123456");
         lblHint.setFont(new Font("Segoe UI", Font.ITALIC, 12));
         lblHint.setForeground(new Color(100, 100, 100));
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
         formPanel.add(lblHint, gbc);
 
         // Buttons Panel
-        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 12));
         btnPanel.setBackground(Color.WHITE);
-        btnLogin = new JButton("🔑 Đăng Nhập");
-        btnLogin.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnLogin.setBackground(new Color(24, 119, 242));
-        btnLogin.setForeground(Color.WHITE);
-        btnLogin.setPreferredSize(new Dimension(140, 38));
-        btnLogin.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        btnExit = new JButton("❌ Thoát");
-        btnExit.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        btnExit.setBackground(new Color(230, 230, 230));
+        btnLogin = new JButton("Dang Nhap");
+        styleButton(btnLogin, new Color(13, 110, 253), Color.WHITE);
+        btnLogin.setPreferredSize(new Dimension(140, 38));
+
+        btnExit = new JButton("Thoat");
+        styleButton(btnExit, new Color(108, 117, 125), Color.WHITE);
         btnExit.setPreferredSize(new Dimension(100, 38));
-        btnExit.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         btnPanel.add(btnLogin);
         btnPanel.add(btnExit);
 
-        // Sự kiện các nút
         btnLogin.addActionListener(e -> handleLogin());
         btnExit.addActionListener(e -> System.exit(0));
-
-        // Nhấn Enter ở ô mật khẩu để đăng nhập luôn
         txtPassword.addActionListener(e -> handleLogin());
 
         mainPanel.add(headerPanel, BorderLayout.NORTH);
@@ -118,54 +110,62 @@ public class LoginForm extends JFrame {
         setContentPane(mainPanel);
     }
 
+    private void styleButton(JButton btn, Color bg, Color fg) {
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btn.setBackground(bg);
+        btn.setForeground(fg);
+        btn.setOpaque(true);
+        btn.setContentAreaFilled(true);
+        btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createLineBorder(bg.darker(), 1));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
     private void handleLogin() {
         String username = txtUsername.getText().trim();
         String password = new String(txtPassword.getPassword()).trim();
 
         if (username.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(this,
-                    "⚠️ Vui lòng nhập đầy đủ Tên đăng nhập và Mật khẩu!",
-                    "Thiếu thông tin",
+                    "Vui long nhap day du Ten dang nhap va Mat khau!",
+                    "Thieu thong tin",
                     JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Kiểm tra kết nối MySQL trước
         try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
             if (conn == null || conn.isClosed()) {
                 JOptionPane.showMessageDialog(this,
-                        "❌ Không thể kết nối cơ sở dữ liệu MySQL! Vui lòng kiểm tra XAMPP.",
-                        "Lỗi Database",
+                        "Khong the ket noi den co so du lieu MySQL! Vui long kiem tra XAMPP.",
+                        "Loi Database",
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this,
-                    "❌ Lỗi kết nối MySQL: " + ex.getMessage(),
-                    "Lỗi Database",
+                    "Loi ket noi MySQL: " + ex.getMessage(),
+                    "Loi Database",
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // Xác thực tài khoản (chấp nhận admin/123456 hoặc root)
         if (("admin".equalsIgnoreCase(username) && "123456".equals(password)) ||
             ("root".equalsIgnoreCase(username) && "".equals(password))) {
             JOptionPane.showMessageDialog(this,
-                    "🎉 Đăng nhập thành công!\nChào mừng quản trị viên [" + username + "].",
-                    "Thành công",
+                    "Dang nhap thanh cong! Chuc ban mot ngay lam viec hieu qua.",
+                    "Thanh cong",
                     JOptionPane.INFORMATION_MESSAGE);
 
-            this.dispose(); // Đóng form đăng nhập
+            this.dispose();
 
-            // Mở FORM 2: Quản lý sản phẩm
             SwingUtilities.invokeLater(() -> {
                 ProductManagementForm productForm = new ProductManagementForm();
                 productForm.setVisible(true);
             });
         } else {
             JOptionPane.showMessageDialog(this,
-                    "❌ Sai tên đăng nhập hoặc mật khẩu!\n(Gợi ý tài khoản: admin / 123456)",
-                    "Đăng nhập thất bại",
+                    "Sai ten dang nhap hoac mat khau!\n(Goi y: admin / 123456)",
+                    "Dang nhap that bai",
                     JOptionPane.ERROR_MESSAGE);
         }
     }

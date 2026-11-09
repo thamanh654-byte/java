@@ -19,31 +19,30 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * FORM 2: Giao diện Quản Lý Sản Phẩm (Java Swing JFrame)
- * Đầy đủ chức năng: Thêm, Sửa, Xóa (Xóa mềm), Tìm kiếm và hiển thị bảng JTable
+ * FORM 2: Giao dien Quan Ly San Pham (CRUD & Tim Kiem)
  */
 public class ProductManagementForm extends JFrame {
     private final ProductService productService;
     private final CategoryDAO categoryDAO;
     private final NumberFormat currencyFormatter;
 
-    // Components Tìm Kiếm
+    // Components Tim Kiem
     private JTextField txtSearch;
     private JButton btnSearch;
     private JButton btnRefreshAll;
 
-    // Components Bảng JTable
+    // Components Bang JTable
     private JTable tblProducts;
     private DefaultTableModel productTableModel;
 
-    // Components Form Nhập Liệu
+    // Components Form Nhap Lieu
     private JTextField txtProdId;
     private JTextField txtProdName;
     private JTextField txtProdPrice;
     private JTextField txtProdQuantity;
     private JComboBox<CategoryItem> cmbCategory;
 
-    // Buttons CRUD & Chuyển Form
+    // Buttons CRUD & Dieu Huong
     private JButton btnAdd;
     private JButton btnUpdate;
     private JButton btnDelete;
@@ -62,7 +61,7 @@ public class ProductManagementForm extends JFrame {
     }
 
     private void initComponents() {
-        setTitle("FORM 2: QUẢN LÝ SẢN PHẨM (CRUD & TÌM KIẾM)");
+        setTitle("FORM 2: QUAN LY SAN PHAM (CRUD & TIM KIEM)");
         setSize(1100, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -74,53 +73,55 @@ public class ProductManagementForm extends JFrame {
         JPanel topContainer = new JPanel(new BorderLayout(5, 5));
 
         JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(new Color(24, 119, 242));
+        headerPanel.setBackground(new Color(13, 110, 253)); // #0d6efd
         headerPanel.setPreferredSize(new Dimension(getWidth(), 55));
-        JLabel lblHeader = new JLabel("📦 QUẢN LÝ SẢN PHẨM & KHO HÀNG", JLabel.CENTER);
+        
+        JLabel lblHeader = new JLabel("QUAN LY SAN PHAM & KHO HANG", JLabel.CENTER);
         lblHeader.setForeground(Color.WHITE);
         lblHeader.setFont(new Font("Segoe UI", Font.BOLD, 20));
         headerPanel.add(lblHeader, BorderLayout.CENTER);
 
-        // Thanh điều hướng bên phải
+        // Thanh dieu huong ben phai
         JPanel navPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 8));
-        navPanel.setBackground(new Color(24, 119, 242));
-        btnOpenBillingForm = new JButton("🛒 Mở Form Bán Hàng >>");
-        btnOpenBillingForm.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnOpenBillingForm.setBackground(new Color(40, 167, 69));
-        btnOpenBillingForm.setForeground(Color.WHITE);
+        navPanel.setBackground(new Color(13, 110, 253));
 
-        btnLogout = new JButton("🚪 Đăng Xuất");
-        btnLogout.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        btnLogout.setBackground(new Color(220, 53, 69));
-        btnLogout.setForeground(Color.WHITE);
+        btnOpenBillingForm = new JButton("Mo Form Ban Hang >>");
+        styleButton(btnOpenBillingForm, new Color(25, 135, 84), Color.WHITE); // #198754
+        btnOpenBillingForm.setPreferredSize(new Dimension(190, 36));
+
+        btnLogout = new JButton("Dang Xuat");
+        styleButton(btnLogout, new Color(220, 53, 69), Color.WHITE); // #dc3545
+        btnLogout.setPreferredSize(new Dimension(110, 36));
 
         navPanel.add(btnOpenBillingForm);
         navPanel.add(btnLogout);
         headerPanel.add(navPanel, BorderLayout.EAST);
 
-        // Thanh tìm kiếm
+        // Thanh tim kiem
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 10));
-        searchPanel.setBorder(new TitledBorder("🔍 Tìm kiếm sản phẩm theo Tên hoặc Danh mục (Kết nối SQL)"));
+        searchPanel.setBorder(new TitledBorder("Tim kiem san pham theo Ten hoac Danh muc"));
         
-        searchPanel.add(new JLabel("Từ khóa tìm kiếm:"));
+        searchPanel.add(new JLabel("Tu khoa tim kiem:"));
         txtSearch = new JTextField(25);
         txtSearch.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         searchPanel.add(txtSearch);
 
-        btnSearch = new JButton("🔎 Tìm Kiếm");
-        btnSearch.setBackground(new Color(0, 123, 255));
-        btnSearch.setForeground(Color.WHITE);
+        btnSearch = new JButton("Tim Kiem");
+        styleButton(btnSearch, new Color(13, 110, 253), Color.WHITE);
+        btnSearch.setPreferredSize(new Dimension(110, 32));
         searchPanel.add(btnSearch);
 
-        btnRefreshAll = new JButton("🔄 Xem Tất Cả");
+        btnRefreshAll = new JButton("Xem Tat Ca");
+        styleButton(btnRefreshAll, new Color(108, 117, 125), Color.WHITE);
+        btnRefreshAll.setPreferredSize(new Dimension(120, 32));
         searchPanel.add(btnRefreshAll);
 
         topContainer.add(headerPanel, BorderLayout.NORTH);
         topContainer.add(searchPanel, BorderLayout.SOUTH);
 
-        // 2. Form Nhập Liệu CRUD (Bên Trái)
+        // 2. Form Nhap Lieu CRUD (Ben Trai)
         JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setBorder(new TitledBorder("Thông tin chi tiết sản phẩm"));
+        formPanel.setBorder(new TitledBorder("Thong tin chi tiet san pham"));
         formPanel.setPreferredSize(new Dimension(380, 0));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(8, 8, 8, 8);
@@ -136,25 +137,23 @@ public class ProductManagementForm extends JFrame {
         cmbCategory = new JComboBox<>();
 
         int r = 0;
-        addFormRow(formPanel, gbc, "Mã SP (product_id):", txtProdId, r++);
-        addFormRow(formPanel, gbc, "Tên sản phẩm (*):", txtProdName, r++);
-        addFormRow(formPanel, gbc, "Đơn giá (VNĐ) (*):", txtProdPrice, r++);
-        addFormRow(formPanel, gbc, "Số lượng tồn (*):", txtProdQuantity, r++);
-        addFormRow(formPanel, gbc, "Danh mục:", cmbCategory, r++);
+        addFormRow(formPanel, gbc, "Ma SP (product_id):", txtProdId, r++);
+        addFormRow(formPanel, gbc, "Ten san pham (*):", txtProdName, r++);
+        addFormRow(formPanel, gbc, "Don gia (VND) (*):", txtProdPrice, r++);
+        addFormRow(formPanel, gbc, "So luong ton (*):", txtProdQuantity, r++);
+        addFormRow(formPanel, gbc, "Danh muc:", cmbCategory, r++);
 
-        // Các nút thao tác CRUD
+        // Cac nut thao tac CRUD
         JPanel btnCrudPanel = new JPanel(new GridLayout(2, 2, 8, 8));
-        btnAdd = new JButton("➕ Thêm Mới");
-        btnUpdate = new JButton("✏️ Cập Nhật");
-        btnDelete = new JButton("🚫 Ngừng Bán (Xóa)");
-        btnClear = new JButton("🔄 Làm Mới");
+        btnAdd = new JButton("Them Moi");
+        btnUpdate = new JButton("Cap Nhat");
+        btnDelete = new JButton("Ngung Ban (Xoa)");
+        btnClear = new JButton("Lam Moi");
 
-        btnAdd.setBackground(new Color(40, 167, 69));
-        btnAdd.setForeground(Color.WHITE);
-        btnUpdate.setBackground(new Color(0, 123, 255));
-        btnUpdate.setForeground(Color.WHITE);
-        btnDelete.setBackground(new Color(220, 53, 69));
-        btnDelete.setForeground(Color.WHITE);
+        styleButton(btnAdd, new Color(25, 135, 84), Color.WHITE);    // Xanh la #198754
+        styleButton(btnUpdate, new Color(13, 110, 253), Color.WHITE); // Xanh duong #0d6efd
+        styleButton(btnDelete, new Color(220, 53, 69), Color.WHITE);  // Do #dc3545
+        styleButton(btnClear, new Color(248, 249, 250), Color.BLACK); // Sang, chu den ro rang
 
         btnCrudPanel.add(btnAdd);
         btnCrudPanel.add(btnUpdate);
@@ -165,9 +164,9 @@ public class ProductManagementForm extends JFrame {
         gbc.insets = new Insets(18, 8, 8, 8);
         formPanel.add(btnCrudPanel, gbc);
 
-        // 3. Bảng JTable hiển thị sản phẩm (Bên Phải)
+        // 3. Bang JTable hien thi san pham (Ben Phai)
         productTableModel = new DefaultTableModel(
-                new Object[]{"Mã SP", "Tên Sản Phẩm", "Đơn Giá", "Tồn Kho", "Danh Mục", "Cảnh Báo"}, 0
+                new Object[]{"Ma SP", "Ten San Pham", "Don Gia", "Ton Kho", "Danh Muc", "Canh Bao"}, 0
         ) {
             @Override
             public boolean isCellEditable(int row, int col) { return false; }
@@ -178,7 +177,7 @@ public class ProductManagementForm extends JFrame {
         tblProducts.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         tblProducts.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
 
-        // Cảnh báo màu đỏ nhạt nếu tồn kho <= 5
+        // Canh bao mau hong nhat neu ton kho <= 5
         tblProducts.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
@@ -187,7 +186,7 @@ public class ProductManagementForm extends JFrame {
                 if (!isSelected) {
                     Object qtyObj = table.getValueAt(rowIdx, 3);
                     if (qtyObj instanceof Integer qty && qty <= 5) {
-                        c.setBackground(new Color(255, 235, 235));
+                        c.setBackground(new Color(255, 230, 230));
                         c.setForeground(new Color(180, 0, 0));
                     } else {
                         c.setBackground(Color.WHITE);
@@ -199,9 +198,9 @@ public class ProductManagementForm extends JFrame {
         });
 
         JScrollPane scrollTable = new JScrollPane(tblProducts);
-        scrollTable.setBorder(new TitledBorder("Danh sách sản phẩm (Màu hồng cảnh báo: Tồn kho <= 5)"));
+        scrollTable.setBorder(new TitledBorder("Danh sach san pham (Nen hong canh bao: Ton kho <= 5)"));
 
-        // Sự kiện click bảng
+        // Su kien click bang
         tblProducts.getSelectionModel().addListSelectionListener(e -> {
             int selectedRow = tblProducts.getSelectedRow();
             if (selectedRow >= 0) {
@@ -222,7 +221,7 @@ public class ProductManagementForm extends JFrame {
             }
         });
 
-        // Bắt sự kiện CRUD & Tìm kiếm
+        // Bat su kien CRUD & Tim kiem
         btnSearch.addActionListener(e -> handleSearch());
         txtSearch.addActionListener(e -> handleSearch());
         btnRefreshAll.addActionListener(e -> {
@@ -235,14 +234,14 @@ public class ProductManagementForm extends JFrame {
         btnDelete.addActionListener(e -> handleDelete());
         btnClear.addActionListener(e -> clearForm());
 
-        // Điều hướng form
+        // Dieu huong form
         btnOpenBillingForm.addActionListener(e -> {
             this.dispose();
             SwingUtilities.invokeLater(() -> new OrderForm().setVisible(true));
         });
 
         btnLogout.addActionListener(e -> {
-            int confirm = JOptionPane.showConfirmDialog(this, "Bạn có muốn đăng xuất khỏi hệ thống?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+            int confirm = JOptionPane.showConfirmDialog(this, "Ban co chac muon dang xuat?", "Xac nhan", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
                 this.dispose();
                 SwingUtilities.invokeLater(() -> new LoginForm().setVisible(true));
@@ -254,6 +253,18 @@ public class ProductManagementForm extends JFrame {
         mainPanel.add(scrollTable, BorderLayout.CENTER);
 
         setContentPane(mainPanel);
+    }
+
+    private void styleButton(JButton btn, Color bg, Color fg) {
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setBackground(bg);
+        btn.setForeground(fg);
+        btn.setOpaque(true);
+        btn.setContentAreaFilled(true);
+        btn.setBorderPainted(true);
+        btn.setBorder(BorderFactory.createLineBorder(bg.darker(), 1));
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
     private void addFormRow(JPanel panel, GridBagConstraints gbc, String label, JComponent comp, int r) {
@@ -289,22 +300,22 @@ public class ProductManagementForm extends JFrame {
             int catId = cat != null ? cat.getId() : 1;
 
             productService.addProduct(name, price, quantity, catId);
-            JOptionPane.showMessageDialog(this, "✅ Thêm sản phẩm thành công vào cơ sở dữ liệu!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Them san pham thanh cong vao co so du lieu!", "Thong bao", JOptionPane.INFORMATION_MESSAGE);
             clearForm();
             loadProductData("");
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "⚠️ Đơn giá và số lượng phải là số hợp lệ!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Don gia va so luong phai la so hop le!", "Loi nhap lieu", JOptionPane.WARNING_MESSAGE);
         } catch (InvalidInputException ex) {
-            JOptionPane.showMessageDialog(this, "⚠️ " + ex.getMessage(), "Lỗi nghiệp vụ", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Loi nghiep vu", JOptionPane.WARNING_MESSAGE);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "❌ Lỗi: " + ex.getMessage(), "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Loi: " + ex.getMessage(), "Loi he thong", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void handleUpdate() {
         String idText = txtProdId.getText().trim();
         if (idText.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 sản phẩm trong bảng để cập nhật!", "Chưa chọn sản phẩm", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Vui long chon 1 san pham trong bang de cap nhat!", "Chua chon san pham", JOptionPane.WARNING_MESSAGE);
             return;
         }
         try {
@@ -316,39 +327,39 @@ public class ProductManagementForm extends JFrame {
             int catId = cat != null ? cat.getId() : 1;
 
             productService.updateProduct(id, name, price, quantity, catId);
-            JOptionPane.showMessageDialog(this, "✅ Cập nhật sản phẩm ID " + id + " thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Cap nhat san pham ID " + id + " thanh cong!", "Thong bao", JOptionPane.INFORMATION_MESSAGE);
             clearForm();
             loadProductData("");
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "⚠️ Đơn giá và số lượng phải là số hợp lệ!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Don gia va so luong phai la so hop le!", "Loi nhap lieu", JOptionPane.WARNING_MESSAGE);
         } catch (ProductNotFoundException | InvalidInputException ex) {
-            JOptionPane.showMessageDialog(this, "⚠️ " + ex.getMessage(), "Lỗi", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Loi", JOptionPane.WARNING_MESSAGE);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "❌ Lỗi: " + ex.getMessage(), "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Loi: " + ex.getMessage(), "Loi he thong", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void handleDelete() {
         String idText = txtProdId.getText().trim();
         if (idText.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 sản phẩm để ngừng kinh doanh!", "Chưa chọn sản phẩm", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Vui long chon 1 san pham de ngung kinh doanh!", "Chua chon san pham", JOptionPane.WARNING_MESSAGE);
             return;
         }
         int confirm = JOptionPane.showConfirmDialog(
                 this,
-                "Bạn có chắc muốn ngừng bán sản phẩm '" + txtProdName.getText() + "' (Xóa mềm - status=false)?",
-                "Xác nhận ngừng bán",
+                "Ban co chac muon ngung ban san pham '" + txtProdName.getText() + "' (Xoa mem - status=false)?",
+                "Xac nhan ngung ban",
                 JOptionPane.YES_NO_OPTION
         );
         if (confirm == JOptionPane.YES_OPTION) {
             try {
                 int id = Integer.parseInt(idText);
                 productService.softDeleteProduct(id);
-                JOptionPane.showMessageDialog(this, "✅ Đã chuyển trạng thái ngừng bán thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Da chuyen trang thai ngung ban thanh cong!", "Thanh cong", JOptionPane.INFORMATION_MESSAGE);
                 clearForm();
                 loadProductData("");
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "❌ Lỗi: " + ex.getMessage(), "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Loi: " + ex.getMessage(), "Loi he thong", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -364,18 +375,18 @@ public class ProductManagementForm extends JFrame {
             }
 
             for (Product p : list) {
-                String warning = (p.getQuantity() <= 5) ? "⚠️ SẮP HẾT" : "Đủ hàng";
+                String warning = (p.getQuantity() <= 5) ? "[!] SAP HET HANG" : "Du hang";
                 productTableModel.addRow(new Object[]{
                         p.getId(),
                         p.getName(),
                         currencyFormatter.format(p.getPrice()),
                         p.getQuantity(),
-                        p.getCategoryName() != null ? p.getCategoryName() : "Khác",
+                        p.getCategoryName() != null ? p.getCategoryName() : "Khac",
                         warning
                 });
             }
         } catch (Exception e) {
-            System.err.println("Lỗi load sản phẩm: " + e.getMessage());
+            System.err.println("Loi load san pham: " + e.getMessage());
         }
     }
 
@@ -387,8 +398,8 @@ public class ProductManagementForm extends JFrame {
                 cmbCategory.addItem(new CategoryItem(c.getId(), c.getName()));
             }
         } catch (Exception e) {
-            cmbCategory.addItem(new CategoryItem(1, "Điện thoại"));
-            cmbCategory.addItem(new CategoryItem(2, "Phụ kiện"));
+            cmbCategory.addItem(new CategoryItem(1, "Dien thoai"));
+            cmbCategory.addItem(new CategoryItem(2, "Phu kien"));
         }
     }
 
