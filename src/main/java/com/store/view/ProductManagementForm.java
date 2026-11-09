@@ -273,9 +273,15 @@ public class ProductManagementForm extends JFrame {
         gbc.gridy = r;
         gbc.gridx = 0;
         gbc.weightx = 0.35;
-        panel.add(new JLabel(label), gbc);
+        gbc.gridwidth = 1;
+        JLabel lbl = new JLabel(label);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        panel.add(lbl, gbc);
         gbc.gridx = 1;
         gbc.weightx = 0.65;
+        if (comp instanceof JTextField tf) {
+            tf.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        }
         panel.add(comp, gbc);
     }
 
