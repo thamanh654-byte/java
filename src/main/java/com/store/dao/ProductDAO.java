@@ -10,6 +10,7 @@ import java.util.List;
  */
 public interface ProductDAO {
     List<Product> getAllActiveProducts() throws SQLException;
+    List<Product> searchProducts(String keyword) throws SQLException;
     Product getProductById(int id) throws SQLException;
     Product getProductById(Connection conn, int id) throws SQLException;
     boolean addProduct(Product product) throws SQLException;
@@ -17,4 +18,3 @@ public interface ProductDAO {
     boolean softDeleteProduct(int id) throws SQLException;
     void decreaseStock(Connection conn, int productId, int quantity) throws SQLException;
 }
-

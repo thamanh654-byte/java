@@ -23,6 +23,13 @@ public class ProductService {
         return productDAO.getAllActiveProducts();
     }
 
+    public List<Product> searchProducts(String keyword) throws SQLException {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return listAllProducts();
+        }
+        return productDAO.searchProducts(keyword);
+    }
+
     public Product getProductById(int id) throws SQLException, ProductNotFoundException {
         Product p = productDAO.getProductById(id);
         if (p == null || !p.isStatus()) {
@@ -69,4 +76,3 @@ public class ProductService {
         }
     }
 }
-

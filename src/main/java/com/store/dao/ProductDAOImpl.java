@@ -15,7 +15,6 @@ public class ProductDAOImpl implements ProductDAO {
     @Override
     public List<Product> getAllActiveProducts() throws SQLException {
         List<Product> products = new ArrayList<>();
-        // Đã đổi c.id thành c.category_id và p.id thành p.product_id
         String sql = "SELECT p.product_id, p.name, p.price, p.quantity, p.category_id, p.status, c.name AS category_name " +
                      "FROM products p LEFT JOIN categories c ON p.category_id = c.category_id " +
                      "WHERE p.status = TRUE ORDER BY p.product_id ASC";
@@ -40,6 +39,37 @@ public class ProductDAOImpl implements ProductDAO {
     }
 
     @Override
+    public List<Product> searchProducts(String keyword) throws SQLException {
+        List<Product> products = new ArrayList<>();
+        String sql = "SELECT p.product_id, p.name, p.price, p.quantity, p.category_id, p.status, c.name AS category_name " +
+                     "FROM products p LEFT JOIN categories c ON p.category_id = c.category_id " +
+                     "WHERE p.status = TRUE AND (p.name LIKE ? OR c.name LIKE ?) " +
+                     "ORDER BY p.product_id ASC";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            String pattern = "%" + keyword.trim() + "%";
+            ps.setString(1, pattern);
+            ps.setString(2, pattern);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Product p = new Product();
+                    p.setId(rs.getInt("product_id"));
+                    p.setName(rs.getString("name"));
+                    p.setPrice(rs.getDouble("price"));
+                    p.setQuantity(rs.getInt("quantity"));
+                    p.setCategoryId(rs.getInt("category_id"));
+                    p.setCategoryName(rs.getString("category_name"));
+                    p.setStatus(rs.getBoolean("status"));
+                    products.add(p);
+                }
+            }
+        }
+        return products;
+    }
+
+    @Override
     public Product getProductById(int id) throws SQLException {
         try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
             return getProductById(conn, id);
@@ -48,7 +78,6 @@ public class ProductDAOImpl implements ProductDAO {
 
     @Override
     public Product getProductById(Connection conn, int id) throws SQLException {
-        // Đã đổi c.id thành c.category_id và p.id thành p.product_id
         String sql = "SELECT p.product_id, p.name, p.price, p.quantity, p.category_id, p.status, c.name AS category_name " +
                      "FROM products p LEFT JOIN categories c ON p.category_id = c.category_id " +
                      "WHERE p.product_id = ?";
