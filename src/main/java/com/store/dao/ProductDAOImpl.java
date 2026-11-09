@@ -102,7 +102,8 @@ public class ProductDAOImpl implements ProductDAO {
 
     @Override
     public boolean addProduct(Product product) throws SQLException {
-        String sql = "INSERT INTO products (name, price, quantity, category_id, status) VALUES (?, ?, ?, ?, ?)";
+        // Bao gom import_price (gia nhap = 70% gia ban) de tranh loi "doesn't have a default value"
+        String sql = "INSERT INTO products (name, price, quantity, category_id, status, import_price) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, product.getName());
@@ -110,6 +111,9 @@ public class ProductDAOImpl implements ProductDAO {
             ps.setInt(3, product.getQuantity());
             ps.setInt(4, product.getCategoryId());
             ps.setBoolean(5, true);
+            // import_price mac dinh = 70% gia ban (co the sua sau)
+            double importPrice = product.getPrice() * 0.7;
+            ps.setDouble(6, importPrice);
             return ps.executeUpdate() > 0;
         }
     }

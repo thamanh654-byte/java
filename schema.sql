@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS products (
     quantity INT NOT NULL,
     category_id INT,
     status BOOLEAN DEFAULT TRUE,
+    import_price DECIMAL(10,2) DEFAULT 0,
     FOREIGN KEY (category_id) REFERENCES categories(category_id)
 );
 
