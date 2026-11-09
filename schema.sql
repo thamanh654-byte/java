@@ -23,20 +23,20 @@ CREATE TABLE IF NOT EXISTS products (
 
 -- 3. Bảng Hóa đơn
 CREATE TABLE IF NOT EXISTS orders (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    customer_name VARCHAR(100) NOT NULL,
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    customer_name VARCHAR(100) DEFAULT 'Khach vang lai',
     total_amount DOUBLE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 4. Bảng Chi tiết hóa đơn
+-- 4. Bảng Chi tiết hóa đơn (PK kep: order_id + product_id)
 CREATE TABLE IF NOT EXISTS order_details (
-    id INT PRIMARY KEY AUTO_INCREMENT,
     order_id INT NOT NULL,
     product_id INT NOT NULL,
     quantity INT NOT NULL,
     unit_price DOUBLE NOT NULL,
-    FOREIGN KEY (order_id) REFERENCES orders(id),
+    PRIMARY KEY (order_id, product_id),
+    FOREIGN KEY (order_id) REFERENCES orders(order_id),
     FOREIGN KEY (product_id) REFERENCES products(product_id)
 );
 

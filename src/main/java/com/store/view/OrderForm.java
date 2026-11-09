@@ -225,10 +225,15 @@ public class OrderForm extends JFrame {
         checkoutStrip.add(lblTotalCartAmount, BorderLayout.WEST);
 
         btnCheckout = new JButton("XAC NHAN THANH TOAN (LUU DB)");
-        styleButton(btnCheckout);
+        // Dat mau nen xanh la dam, chu trang ro net - goi sau styleButton de ghi de
         btnCheckout.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnCheckout.setBackground(new Color(25, 135, 84));
         btnCheckout.setForeground(Color.WHITE);
+        btnCheckout.setOpaque(true);
+        btnCheckout.setContentAreaFilled(true);
+        btnCheckout.setBorderPainted(false);
+        btnCheckout.setFocusPainted(false);
+        btnCheckout.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnCheckout.setPreferredSize(new Dimension(340, 40));
         checkoutStrip.add(btnCheckout, BorderLayout.EAST);
 
