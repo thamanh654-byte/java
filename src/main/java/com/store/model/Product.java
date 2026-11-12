@@ -11,6 +11,7 @@ public class Product {
     private int categoryId;
     private String categoryName; // Hỗ trợ hiển thị tên danh mục
     private boolean status;      // true: đang kinh doanh, false: ngừng kinh doanh (xóa mềm)
+    private double importPrice;  // Giá nhập (mặc định = 70% giá bán)
 
     public Product() {
     }
@@ -78,6 +79,14 @@ public class Product {
 
     public void setStatus(boolean status) {
         this.status = status;
+    }
+
+    public double getImportPrice() {
+        return importPrice;
+    }
+
+    public void setImportPrice(double importPrice) {
+        this.importPrice = importPrice;
     }
 }
 

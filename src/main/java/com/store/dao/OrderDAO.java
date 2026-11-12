@@ -13,8 +13,11 @@ import java.util.List;
 public interface OrderDAO {
     int insertOrder(Connection conn, Order order) throws SQLException;
     void insertOrderDetail(Connection conn, OrderDetail detail) throws SQLException;
+    void insertOrderDetails(Connection conn, List<OrderDetail> details) throws SQLException;
     List<Order> getAllOrders() throws SQLException;
     List<OrderDetail> getOrderDetailsByOrderId(int orderId) throws SQLException;
     double getTotalRevenue() throws SQLException;
+    int countOrders() throws SQLException;
 }
+
 

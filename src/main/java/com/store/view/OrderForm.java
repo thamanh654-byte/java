@@ -8,53 +8,74 @@ import com.store.model.OrderDetail;
 import com.store.model.Product;
 import com.store.service.OrderService;
 import com.store.service.ProductService;
+import com.store.util.MoneyUtils;
+import com.store.util.UiUtils;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * FORM 3: Giao dien Ban Hang & Lap Hoa Don (JDBC Transaction)
  * Layout: BorderLayout chinh, JSplitPane doc chia phan tren/duoi
  */
-public class OrderForm extends JFrame {
-    private final OrderService orderService;
-    private final ProductService productService;
-    private final NumberFormat currencyFormatter;
+public final class OrderForm extends JFrame {
+    private static final long serialVersionUID = 1L;
+
+    private final transient OrderService orderService;
+    private final transient ProductService productService;
+    private final transient NumberFormat currencyFormatter;
 
     // Components nhap don hang
-    private JTextField txtCustomerName;
-    private JComboBox<ProductComboItem> cmbProduct;
-    private JSpinner spnQuantity;
-    private JButton btnAddToCart;
-    private JButton btnRemoveFromCart;
+    private transient JTextField txtCustomerName;
+    private transient JComboBox<ProductComboItem> cmbProduct;
+    private transient JSpinner spnQuantity;
+    private transient JButton btnAddToCart;
+    private transient JButton btnRemoveFromCart;
 
     // Components gio hang
-    private JTable tblCart;
-    private DefaultTableModel cartTableModel;
-    private JLabel lblTotalCartAmount;
-    private JButton btnCheckout;
-    private final List<OrderDetail> cartItems = new ArrayList<>();
-    private double currentTotal = 0.0;
+    private transient JTable tblCart;
+    private transient DefaultTableModel cartTableModel;
+    private transient JLabel lblTotalCartAmount;
+    private transient JButton btnCheckout;
+    private transient List<OrderDetail> cartItems = new ArrayList<>();
+    private transient double currentTotal = 0.0;
 
     // Components lich su hoa don & thong ke
-    private JTable tblOrders;
-    private DefaultTableModel orderTableModel;
-    private JTable tblOrderDetails;
-    private DefaultTableModel orderDetailTableModel;
-    private JLabel lblRevenue;
-    private JButton btnBackToProducts;
+    private transient JTable tblOrders;
+    private transient DefaultTableModel orderTableModel;
+    private transient JTable tblOrderDetails;
+    private transient DefaultTableModel orderDetailTableModel;
+    private transient JLabel lblRevenue;
+    private transient JButton btnBackToProducts;
 
     public OrderForm() {
         this.orderService = new OrderService();
         this.productService = new ProductService();
-        this.currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        this.currencyFormatter = NumberFormat.getCurrencyInstance(MoneyUtils.VIETNAM);
+        this.currencyFormatter.setMaximumFractionDigits(0);
 
         initComponents();
         loadProductComboBox();
@@ -63,28 +84,19 @@ public class OrderForm extends JFrame {
     }
 
     private void initComponents() {
-        setTitle("FORM 3: BAN HANG & LAP HOA DON");
-        setSize(1150, 780);
+        setTitle("Bán hàng - Hệ thống Quản lý cửa hàng");
+        setSize(1200, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setMinimumSize(new Dimension(900, 600));
+        setMinimumSize(new Dimension(960, 640));
 
-        // ============================================================
-        // NORTH: Header xanh la
-        // ============================================================
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(new Color(25, 135, 84));
-        headerPanel.setBorder(new EmptyBorder(8, 12, 8, 12));
+        JPanel headerPanel = UiUtils.header(
+                "BÁN HÀNG & LẬP HÓA ĐƠN",
+                "Bước 3/3  ·  Lập hóa đơn, trừ kho và xem doanh thu");
 
-        JLabel lblTitle = new JLabel("QUAN LY BAN HANG & LAP HOA DON", JLabel.CENTER);
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        lblTitle.setForeground(Color.WHITE);
-        headerPanel.add(lblTitle, BorderLayout.CENTER);
-
-        JPanel navPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        navPanel.setBackground(new Color(25, 135, 84));
-        btnBackToProducts = new JButton("<< Ve Quan Ly San Pham");
-        styleButton(btnBackToProducts);
+        JPanel navPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        navPanel.setOpaque(false);
+        btnBackToProducts = UiUtils.button("<  Quản lý sản phẩm", UiUtils.NEUTRAL);
         navPanel.add(btnBackToProducts);
         headerPanel.add(navPanel, BorderLayout.WEST);
 
@@ -108,6 +120,7 @@ public class OrderForm extends JFrame {
         // Lap rap khung chinh
         // ============================================================
         JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(UiUtils.BG);
         mainPanel.add(headerPanel, BorderLayout.NORTH);
         mainPanel.add(splitMain, BorderLayout.CENTER);
         setContentPane(mainPanel);
@@ -140,62 +153,49 @@ public class OrderForm extends JFrame {
     // ------------------------------------------------------------------
     private JPanel buildBillingPanel() {
         JPanel panel = new JPanel(new BorderLayout(6, 6));
-        panel.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(new Color(25, 135, 84), 1),
-            "TAO HOA DON MOI",
-            TitledBorder.LEFT, TitledBorder.TOP,
-            new Font("Segoe UI", Font.BOLD, 13), new Color(25, 135, 84)
-        ));
-        panel.setBackground(Color.WHITE);
+        panel.setBorder(UiUtils.cardBorder("Tạo hóa đơn mới"));
+        panel.setBackground(UiUtils.CARD);
 
-        // --- Hang nhap lieu ---
+        // --- Hàng nhập liệu ---
         JPanel inputPanel = new JPanel(new GridBagLayout());
-        inputPanel.setBackground(Color.WHITE);
-        inputPanel.setBorder(new EmptyBorder(6, 8, 4, 8));
+        inputPanel.setOpaque(false);
+        inputPanel.setBorder(new EmptyBorder(4, 6, 2, 6));
         GridBagConstraints g = new GridBagConstraints();
         g.insets = new Insets(5, 6, 5, 6);
         g.fill = GridBagConstraints.HORIZONTAL;
 
-        // Hang 1: Ho ten khach hang
-        JLabel lbCustomer = new JLabel("Ho ten khach hang (*):");
-        lbCustomer.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        // Hàng 1: họ tên khách hàng
         g.gridx = 0; g.gridy = 0; g.weightx = 0;
-        inputPanel.add(lbCustomer, g);
+        inputPanel.add(UiUtils.label("Khách hàng"), g);
 
         txtCustomerName = new JTextField(28);
-        txtCustomerName.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        UiUtils.pad(txtCustomerName);
         g.gridx = 1; g.gridy = 0; g.weightx = 1.0; g.gridwidth = 4;
         inputPanel.add(txtCustomerName, g);
 
-        // Hang 2: Chon san pham / so luong / them gio
+        // Hàng 2: chọn sản phẩm / số lượng / thêm giỏ
         g.gridwidth = 1; g.weightx = 0;
-        JLabel lbProduct = new JLabel("Chon san pham:");
-        lbProduct.setFont(new Font("Segoe UI", Font.BOLD, 13));
         g.gridx = 0; g.gridy = 1;
-        inputPanel.add(lbProduct, g);
+        inputPanel.add(UiUtils.label("Sản phẩm"), g);
 
         cmbProduct = new JComboBox<>();
-        cmbProduct.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        UiUtils.pad(cmbProduct);
         g.gridx = 1; g.gridy = 1; g.weightx = 1.0;
         inputPanel.add(cmbProduct, g);
 
-        JLabel lbQty = new JLabel("So luong:");
-        lbQty.setFont(new Font("Segoe UI", Font.BOLD, 13));
         g.gridx = 2; g.gridy = 1; g.weightx = 0;
-        inputPanel.add(lbQty, g);
+        inputPanel.add(UiUtils.label("Số lượng"), g);
 
         spnQuantity = new JSpinner(new SpinnerNumberModel(1, 1, 500, 1));
-        spnQuantity.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        UiUtils.pad(spnQuantity);
         spnQuantity.setPreferredSize(new Dimension(80, 30));
         g.gridx = 3; g.gridy = 1; g.weightx = 0;
         inputPanel.add(spnQuantity, g);
 
         JPanel btnCartPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
-        btnCartPanel.setBackground(Color.WHITE);
-        btnAddToCart = new JButton("Them Vao Gio");
-        styleButton(btnAddToCart);
-        btnRemoveFromCart = new JButton("Xoa Mon Chon");
-        styleButton(btnRemoveFromCart);
+        btnCartPanel.setOpaque(false);
+        btnAddToCart = UiUtils.button("Thêm vào giỏ", UiUtils.PRIMARY);
+        btnRemoveFromCart = UiUtils.button("Xóa món", UiUtils.NEUTRAL);
         btnCartPanel.add(btnAddToCart);
         btnCartPanel.add(btnRemoveFromCart);
         g.gridx = 4; g.gridy = 1; g.weightx = 0;
@@ -203,38 +203,28 @@ public class OrderForm extends JFrame {
 
         // --- Bang gio hang ---
         cartTableModel = new DefaultTableModel(
-            new Object[]{"Ma SP", "Ten San Pham", "Don Gia", "So Luong", "Thanh Tien"}, 0
+            new Object[]{"Mã SP", "Tên sản phẩm", "Đơn giá", "Số lượng", "Thành tiền"}, 0
         ) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
         tblCart = new JTable(cartTableModel);
-        tblCart.setRowHeight(26);
-        tblCart.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        tblCart.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
-        tblCart.setSelectionBackground(new Color(173, 216, 230));
+        UiUtils.styleTable(tblCart);
+        UiUtils.applyStripeRenderer(tblCart);
         JScrollPane scrollCart = new JScrollPane(tblCart);
+        scrollCart.getViewport().setBackground(UiUtils.CARD);
 
-        // --- Thanh tong tien & thanh toan ---
+        // --- Thanh tổng tiền & thanh toán ---
         JPanel checkoutStrip = new JPanel(new BorderLayout(10, 0));
-        checkoutStrip.setBackground(new Color(248, 249, 250));
+        checkoutStrip.setBackground(new Color(248, 250, 253));
         checkoutStrip.setBorder(new EmptyBorder(8, 12, 8, 12));
 
-        lblTotalCartAmount = new JLabel("Tong tien: 0 VND");
-        lblTotalCartAmount.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        lblTotalCartAmount.setForeground(new Color(220, 53, 69));
+        lblTotalCartAmount = new JLabel("Tổng tiền: 0 đ");
+        lblTotalCartAmount.setFont(UiUtils.FONT_MONEY);
+        lblTotalCartAmount.setForeground(UiUtils.DANGER);
         checkoutStrip.add(lblTotalCartAmount, BorderLayout.WEST);
 
-        btnCheckout = new JButton("XAC NHAN THANH TOAN (LUU DB)");
-        // Dat mau nen xanh la dam, chu trang ro net - goi sau styleButton de ghi de
-        btnCheckout.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnCheckout.setBackground(new Color(25, 135, 84));
-        btnCheckout.setForeground(Color.WHITE);
-        btnCheckout.setOpaque(true);
-        btnCheckout.setContentAreaFilled(true);
-        btnCheckout.setBorderPainted(false);
-        btnCheckout.setFocusPainted(false);
-        btnCheckout.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnCheckout.setPreferredSize(new Dimension(340, 40));
+        btnCheckout = UiUtils.button("Thanh toán & lưu hóa đơn", UiUtils.ACCENT);
+        btnCheckout.setPreferredSize(new Dimension(260, 42));
         checkoutStrip.add(btnCheckout, BorderLayout.EAST);
 
         panel.add(inputPanel, BorderLayout.NORTH);
@@ -248,49 +238,42 @@ public class OrderForm extends JFrame {
     // ------------------------------------------------------------------
     private JPanel buildHistoryPanel() {
         JPanel panel = new JPanel(new BorderLayout(6, 6));
-        panel.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(new Color(108, 117, 125), 1),
-            "LICH SU HOA DON & THONG KE",
-            TitledBorder.LEFT, TitledBorder.TOP,
-            new Font("Segoe UI", Font.BOLD, 13), new Color(50, 50, 50)
-        ));
-        panel.setBackground(Color.WHITE);
+        panel.setBorder(UiUtils.cardBorder("Lịch sử hóa đơn & thống kê"));
+        panel.setBackground(UiUtils.CARD);
 
         // Thanh doanh thu
-        JPanel revenueStrip = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 6));
-        revenueStrip.setBackground(new Color(232, 245, 232));
-        revenueStrip.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(25, 135, 84)));
-        lblRevenue = new JLabel("TONG DOANH THU CUA HANG: 0 VND");
-        lblRevenue.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblRevenue.setForeground(new Color(20, 110, 20));
+        JPanel revenueStrip = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 8));
+        revenueStrip.setBackground(new Color(232, 245, 237));
+        lblRevenue = new JLabel("Tổng doanh thu cửa hàng: 0 đ");
+        lblRevenue.setFont(UiUtils.FONT_MONEY);
+        lblRevenue.setForeground(new Color(16, 120, 72));
         revenueStrip.add(lblRevenue);
 
-        // Bang danh sach hoa don
+        // Bảng danh sách hóa đơn
         orderTableModel = new DefaultTableModel(
-            new Object[]{"Ma HD", "Khach Hang", "Tong Tien", "Ngay Tao"}, 0
+            new Object[]{"Mã HĐ", "Khách hàng", "Tổng tiền", "Ngày tạo"}, 0
         ) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
         tblOrders = new JTable(orderTableModel);
-        tblOrders.setRowHeight(24);
-        tblOrders.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        tblOrders.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
-        tblOrders.setSelectionBackground(new Color(173, 216, 230));
+        UiUtils.styleTable(tblOrders);
+        UiUtils.applyStripeRenderer(tblOrders);
         JScrollPane scrollOrders = new JScrollPane(tblOrders);
-        scrollOrders.setBorder(BorderFactory.createTitledBorder("Danh sach hoa don da ban (Click de xem chi tiet)"));
+        scrollOrders.setBorder(UiUtils.cardBorder("Hóa đơn đã bán  ·  bấm một dòng để xem chi tiết"));
+        scrollOrders.getViewport().setBackground(UiUtils.CARD);
 
-        // Bang chi tiet mon
+        // Bảng chi tiết món
         orderDetailTableModel = new DefaultTableModel(
-            new Object[]{"Ma SP", "Ten San Pham", "SL", "Don Gia", "Thanh Tien"}, 0
+            new Object[]{"Mã SP", "Tên sản phẩm", "Số lượng", "Đơn giá", "Thành tiền"}, 0
         ) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
         tblOrderDetails = new JTable(orderDetailTableModel);
-        tblOrderDetails.setRowHeight(24);
-        tblOrderDetails.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        tblOrderDetails.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+        UiUtils.styleTable(tblOrderDetails);
+        UiUtils.applyStripeRenderer(tblOrderDetails);
         JScrollPane scrollDetails = new JScrollPane(tblOrderDetails);
-        scrollDetails.setBorder(BorderFactory.createTitledBorder("Chi tiet mon trong hoa don duoc chon"));
+        scrollDetails.setBorder(UiUtils.cardBorder("Chi tiết món của hóa đơn được chọn"));
+        scrollDetails.getViewport().setBackground(UiUtils.CARD);
 
         JSplitPane splitTables = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollOrders, scrollDetails);
         splitTables.setResizeWeight(0.5);
@@ -299,23 +282,6 @@ public class OrderForm extends JFrame {
         panel.add(revenueStrip, BorderLayout.NORTH);
         panel.add(splitTables, BorderLayout.CENTER);
         return panel;
-    }
-
-    // ------------------------------------------------------------------
-    // Helper: style button chuan
-    // ------------------------------------------------------------------
-    private void styleButton(JButton btn) {
-        btn.setForeground(Color.BLACK);
-        btn.setBackground(new Color(230, 230, 230));
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btn.setOpaque(true);
-        btn.setContentAreaFilled(true);
-        btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.GRAY, 1),
-            BorderFactory.createEmptyBorder(5, 12, 5, 12)
-        ));
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
     // ------------------------------------------------------------------
@@ -336,14 +302,14 @@ public class OrderForm extends JFrame {
     private void handleAddToCart() {
         ProductComboItem item = (ProductComboItem) cmbProduct.getSelectedItem();
         if (item == null) {
-            JOptionPane.showMessageDialog(this, "Vui long chon 1 san pham!", "Thong bao", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn một sản phẩm!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
         int qty = (int) spnQuantity.getValue();
         if (qty > item.getQuantity()) {
             JOptionPane.showMessageDialog(this,
-                "So luong ton kho khong du! Hien tai chi con: " + item.getQuantity(),
-                "Kho khong du hang", JOptionPane.WARNING_MESSAGE);
+                "Không đủ hàng trong kho! Hiện chỉ còn: " + item.getQuantity(),
+                "Không đủ hàng", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -352,8 +318,8 @@ public class OrderForm extends JFrame {
             if (d.getProductId() == item.getId()) {
                 if (d.getQuantity() + qty > item.getQuantity()) {
                     JOptionPane.showMessageDialog(this,
-                        "Tong so luong mua (" + (d.getQuantity() + qty) + ") vuot qua kho con lai (" + item.getQuantity() + ")!",
-                        "Canh bao", JOptionPane.WARNING_MESSAGE);
+                        "Tổng số lượng mua (" + (d.getQuantity() + qty) + ") vượt quá kho còn lại (" + item.getQuantity() + ")!",
+                        "Cảnh báo", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
                 d.setQuantity(d.getQuantity() + qty);
@@ -376,7 +342,7 @@ public class OrderForm extends JFrame {
             cartItems.remove(row);
             refreshCart();
         } else {
-            JOptionPane.showMessageDialog(this, "Vui long chon 1 mon trong gio hang de xoa!", "Chua chon", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn một món trong giỏ hàng để xóa!", "Chưa chọn", JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -393,24 +359,24 @@ public class OrderForm extends JFrame {
             });
             currentTotal += d.getSubTotal();
         }
-        lblTotalCartAmount.setText("Tong tien: " + currencyFormatter.format(currentTotal));
+        lblTotalCartAmount.setText("Tổng tiền: " + currencyFormatter.format(currentTotal));
     }
 
     private void handleCheckout() {
         String customer = txtCustomerName.getText().trim();
         if (customer.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui long nhap ho ten khach hang!", "Thieu thong tin", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập họ tên khách hàng!", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
             return;
         }
         if (cartItems.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Gio hang dang trong! Vui long chon mon truoc.", "Gio hang rong", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Giỏ hàng đang trống! Vui lòng chọn món trước.", "Giỏ hàng trống", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         int confirm = JOptionPane.showConfirmDialog(
             this,
-            "Xac nhan tao hoa don cho khach: " + customer + "\nTong tien thanh toan: " + currencyFormatter.format(currentTotal),
-            "Xac nhan thanh toan (Transaction)",
+            "Xác nhận tạo hóa đơn cho khách: " + customer + "\nTổng tiền thanh toán: " + currencyFormatter.format(currentTotal),
+            "Xác nhận thanh toán",
             JOptionPane.YES_NO_OPTION
         );
 
@@ -418,10 +384,10 @@ public class OrderForm extends JFrame {
             try {
                 int orderId = orderService.createOrderWithTransaction(customer, new ArrayList<>(cartItems));
                 JOptionPane.showMessageDialog(this,
-                    "THANH TOAN THANH CONG!\n" +
-                    "Ma hoa don: #" + orderId + "\n" +
-                    "Du lieu da duoc COMMIT an toan vao MySQL va ton kho da duoc tru.",
-                    "Giao dich hoan tat", JOptionPane.INFORMATION_MESSAGE);
+                    "Thanh toán thành công!\n" +
+                    "Mã hóa đơn: #" + orderId + "\n" +
+                    "Hóa đơn đã được lưu vào MySQL và tồn kho đã được trừ.",
+                    "Giao dịch hoàn tất", JOptionPane.INFORMATION_MESSAGE);
 
                 cartItems.clear();
                 refreshCart();
@@ -433,10 +399,10 @@ public class OrderForm extends JFrame {
 
             } catch (OutOfStockException | ProductNotFoundException | InvalidInputException ex) {
                 JOptionPane.showMessageDialog(this,
-                    "GIAO DICH THAT BAI: " + ex.getMessage() + "\nHe thong da ROLLBACK toan bo du lieu!",
-                    "Loi giao dich", JOptionPane.ERROR_MESSAGE);
+                    "Giao dịch thất bại: " + ex.getMessage() + "\nHệ thống đã hoàn tác toàn bộ, dữ liệu không bị thay đổi.",
+                    "Lỗi giao dịch", JOptionPane.ERROR_MESSAGE);
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Loi he thong: " + ex.getMessage(), "Loi", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Lỗi hệ thống: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -451,7 +417,7 @@ public class OrderForm extends JFrame {
                     o.getId(),
                     o.getCustomerName(),
                     currencyFormatter.format(o.getTotalAmount()),
-                    o.getCreatedAt()
+                    o.getCreatedAt() == null ? "" : o.getCreatedAt().toString().substring(0, 16)
                 });
             }
         } catch (Exception e) {
@@ -480,7 +446,7 @@ public class OrderForm extends JFrame {
     private void updateRevenue() {
         try {
             double rev = orderService.getTotalRevenue();
-            lblRevenue.setText("TONG DOANH THU CUA HANG: " + currencyFormatter.format(rev));
+            lblRevenue.setText("Tổng doanh thu cửa hàng: " + currencyFormatter.format(rev));
         } catch (Exception e) {
             System.err.println("Loi tinh doanh thu: " + e.getMessage());
         }
@@ -506,8 +472,7 @@ public class OrderForm extends JFrame {
 
         @Override
         public String toString() {
-            NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-            return name + " (" + nf.format(price) + " | Kho: " + quantity + ")";
+            return name + " (" + MoneyUtils.format(price) + " | Kho: " + quantity + ")";
         }
     }
 }

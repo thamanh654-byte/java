@@ -1,100 +1,97 @@
 package com.store.view;
 
 import com.store.config.DatabaseConnection;
+import com.store.util.UiUtils;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 /**
  * FORM 1: Giao diện Đăng nhập hệ thống (Java Swing JFrame)
  */
-public class LoginForm extends JFrame {
-    private JTextField txtUsername;
-    private JPasswordField txtPassword;
-    private JButton btnLogin;
-    private JButton btnExit;
+public final class LoginForm extends JFrame {
+    private static final long serialVersionUID = 1L;
+
+    /** Tài khoản demo (đăng nhập cục bộ, không lưu mật khẩu người dùng). */
+    private static final String DEMO_USER = "admin";
+    private static final String DEMO_PASSWORD = "123456";
+    private static final String ROOT_USER = "root";
+    private static final String ROOT_PASSWORD = "";
+
+    private transient JTextField txtUsername;
+    private transient JPasswordField txtPassword;
+    private transient JButton btnLogin;
+    private transient JButton btnExit;
 
     public LoginForm() {
         initComponents();
     }
 
     private void initComponents() {
-        setTitle("ĐĂNG NHẬP HỆ THỐNG - QUẢN LÝ CỬA HÀNG");
-        setSize(460, 360);
+        setTitle("Đăng nhập - Hệ thống Quản lý cửa hàng");
+        setSize(480, 340);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setBackground(UiUtils.BG);
 
-        // Header Panel
-        JPanel headerPanel = new JPanel();
-        headerPanel.setBackground(new Color(13, 110, 253));
-        headerPanel.setPreferredSize(new Dimension(getWidth(), 70));
-        headerPanel.setLayout(new BorderLayout());
-
-        JLabel lblTitle = new JLabel("ĐĂNG NHẬP HỆ THỐNG", JLabel.CENTER);
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        lblTitle.setForeground(Color.WHITE);
-        headerPanel.add(lblTitle, BorderLayout.CENTER);
-
-        JLabel lblSub = new JLabel("Hệ Thống Quản Lý Cửa Hàng & Bán Hàng (Store Management)", JLabel.CENTER);
-        lblSub.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        lblSub.setForeground(new Color(230, 240, 255));
-        lblSub.setBorder(new EmptyBorder(0, 0, 8, 0));
-        headerPanel.add(lblSub, BorderLayout.SOUTH);
+        JPanel headerPanel = UiUtils.header(
+                "QUẢN LÝ CỬA HÀNG",
+                "Bước 1/3  ·  Đăng nhập hệ thống");
 
         // Form nhập liệu
         JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setBackground(Color.WHITE);
-        formPanel.setBorder(new EmptyBorder(25, 30, 15, 30));
+        formPanel.setBackground(UiUtils.CARD);
+        formPanel.setBorder(new EmptyBorder(24, 30, 10, 30));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(8, 8, 8, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel lblUser = new JLabel("Tên đăng nhập:");
-        lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
         txtUsername = new JTextField(15);
-        txtUsername.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        UiUtils.pad(txtUsername);
         txtUsername.setText("admin");
 
-        JLabel lblPass = new JLabel("Mật khẩu:");
-        lblPass.setFont(new Font("Segoe UI", Font.BOLD, 14));
         txtPassword = new JPasswordField(15);
-        txtPassword.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        UiUtils.pad(txtPassword);
         txtPassword.setText("123456");
 
-        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.35;
-        formPanel.add(lblUser, gbc);
-        gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 0.65;
+        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.4;
+        formPanel.add(UiUtils.label("Tên đăng nhập"), gbc);
+        gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 0.6;
         formPanel.add(txtUsername, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.35;
-        formPanel.add(lblPass, gbc);
-        gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 0.65;
+        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.4;
+        formPanel.add(UiUtils.label("Mật khẩu"), gbc);
+        gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 0.6;
         formPanel.add(txtPassword, gbc);
 
-        JLabel lblHint = new JLabel("[!] Tài khoản mặc định: admin | Mật khẩu: 123456");
-        lblHint.setFont(new Font("Segoe UI", Font.ITALIC, 12));
-        lblHint.setForeground(new Color(80, 80, 80));
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
-        formPanel.add(lblHint, gbc);
+        formPanel.add(UiUtils.muted("Tài khoản demo: admin    ·    Mật khẩu: 123456"), gbc);
 
-        // Buttons Panel
-        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 12));
-        btnPanel.setBackground(Color.WHITE);
+        // Nút chức năng
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 14));
+        btnPanel.setBackground(UiUtils.BG);
 
-        btnLogin = new JButton("Đăng Nhập");
-        styleButton(btnLogin);
-        btnLogin.setPreferredSize(new Dimension(140, 38));
+        btnLogin = UiUtils.button("Đăng nhập", UiUtils.PRIMARY);
+        btnLogin.setPreferredSize(new Dimension(150, 40));
 
-        btnExit = new JButton("Thoát");
-        styleButton(btnExit);
-        btnExit.setPreferredSize(new Dimension(100, 38));
+        btnExit = UiUtils.button("Thoát", UiUtils.NEUTRAL);
+        btnExit.setPreferredSize(new Dimension(110, 40));
 
         btnPanel.add(btnLogin);
         btnPanel.add(btnExit);
@@ -110,20 +107,6 @@ public class LoginForm extends JFrame {
         setContentPane(mainPanel);
     }
 
-    private void styleButton(JButton btn) {
-        btn.setForeground(Color.BLACK);
-        btn.setBackground(new Color(230, 230, 230));
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btn.setOpaque(true);
-        btn.setContentAreaFilled(true);
-        btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.GRAY, 1),
-                BorderFactory.createEmptyBorder(5, 15, 5, 15)
-        ));
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-    }
-
     private void handleLogin() {
         String username = txtUsername.getText().trim();
         String password = new String(txtPassword.getPassword()).trim();
@@ -136,15 +119,15 @@ public class LoginForm extends JFrame {
             return;
         }
 
-        try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
-            if (conn == null || conn.isClosed()) {
+        try {
+            if (!DatabaseConnection.getInstance().testConnection()) {
                 JOptionPane.showMessageDialog(this,
                         "Không thể kết nối đến cơ sở dữ liệu MySQL! Vui lòng kiểm tra XAMPP.",
                         "Lỗi Database",
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
-        } catch (SQLException ex) {
+        } catch (RuntimeException ex) {
             JOptionPane.showMessageDialog(this,
                     "Lỗi kết nối MySQL: " + ex.getMessage(),
                     "Lỗi Database",
@@ -152,24 +135,24 @@ public class LoginForm extends JFrame {
             return;
         }
 
-        if (("admin".equalsIgnoreCase(username) && "123456".equals(password)) ||
-            ("root".equalsIgnoreCase(username) && "".equals(password))) {
+        if (isValidCredential(username, password)) {
             JOptionPane.showMessageDialog(this,
                     "Đăng nhập thành công! Chúc bạn một ngày làm việc hiệu quả.",
                     "Thành công",
                     JOptionPane.INFORMATION_MESSAGE);
 
             this.dispose();
-
-            SwingUtilities.invokeLater(() -> {
-                ProductManagementForm productForm = new ProductManagementForm();
-                productForm.setVisible(true);
-            });
+            SwingUtilities.invokeLater(() -> new ProductManagementForm().setVisible(true));
         } else {
             JOptionPane.showMessageDialog(this,
                     "Sai tên đăng nhập hoặc mật khẩu!\n(Gợi ý tài khoản: admin / 123456)",
                     "Đăng nhập thất bại",
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private boolean isValidCredential(String username, String password) {
+        return (DEMO_USER.equalsIgnoreCase(username) && DEMO_PASSWORD.equals(password))
+                || (ROOT_USER.equalsIgnoreCase(username) && ROOT_PASSWORD.equals(password));
     }
 }

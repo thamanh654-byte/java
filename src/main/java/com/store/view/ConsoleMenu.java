@@ -8,11 +8,11 @@ import com.store.model.OrderDetail;
 import com.store.model.Product;
 import com.store.service.OrderService;
 import com.store.service.ProductService;
+import com.store.util.MoneyUtils;
+import com.store.util.UiUtils;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Scanner;
 
 /**
@@ -22,13 +22,11 @@ public class ConsoleMenu {
     private final ProductService productService;
     private final OrderService orderService;
     private final Scanner scanner;
-    private final NumberFormat currencyFormatter;
 
     public ConsoleMenu() {
         this.productService = new ProductService();
         this.orderService = new OrderService();
         this.scanner = new Scanner(System.in);
-        this.currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
     }
 
     public void start() {
@@ -81,11 +79,11 @@ public class ConsoleMenu {
             System.out.println("=".repeat(85));
 
             for (Product p : list) {
-                String warning = (p.getQuantity() <= 5) ? "⚠️ SẮP HẾT" : "Đủ hàng";
+                String warning = (p.getQuantity() <= UiUtils.LOW_STOCK_THRESHOLD) ? "⚠️ SẮP HẾT" : "Đủ hàng";
                 System.out.printf("| %-4d | %-25s | %-16s | %-6d | %-15s | %-8s |\n",
                         p.getId(),
                         truncate(p.getName(), 25),
-                        currencyFormatter.format(p.getPrice()),
+                        MoneyUtils.format(p.getPrice()),
                         p.getQuantity(),
                         p.getCategoryName() != null ? truncate(p.getCategoryName(), 15) : "Chưa phân loại",
                         warning);
@@ -123,8 +121,8 @@ public class ConsoleMenu {
             String name = readString("Tên mới (Enter để giữ nguyên '" + current.getName() + "'): ");
             if (name.trim().isEmpty()) name = current.getName();
 
-            String priceStr = readString("Đơn giá mới (Enter để giữ nguyên '" + current.getPrice() + "'): ");
-            double price = priceStr.trim().isEmpty() ? current.getPrice() : Double.parseDouble(priceStr);
+            String priceStr = readString("Đơn giá mới (Enter để giữ nguyên '" + MoneyUtils.format(current.getPrice()) + "'): ");
+            double price = priceStr.trim().isEmpty() ? current.getPrice() : MoneyUtils.parse(priceStr);
 
             String qtyStr = readString("Số lượng tồn mới (Enter để giữ nguyên '" + current.getQuantity() + "'): ");
             int quantity = qtyStr.trim().isEmpty() ? current.getQuantity() : Integer.parseInt(qtyStr);
@@ -176,8 +174,8 @@ public class ConsoleMenu {
                 }
 
                 Product p = productService.getProductById(productId);
-                System.out.println("-> Đã chọn: " + p.getName() + " | Đơn giá: " 
-                        + currencyFormatter.format(p.getPrice()) + " | Còn lại: " + p.getQuantity());
+                System.out.println("-> Đã chọn: " + p.getName() + " | Đơn giá: "
+                        + MoneyUtils.format(p.getPrice()) + " | Còn lại: " + p.getQuantity());
 
                 int quantity = readInt("Nhập số lượng muốn mua: ");
                 if (quantity <= 0) {
@@ -185,12 +183,32 @@ public class ConsoleMenu {
                     continue;
                 }
 
-                cart.add(new OrderDetail(productId, quantity, p.getPrice()));
+                OrderDetail line = new OrderDetail(productId, quantity, p.getPrice());
+                line.setProductName(p.getName());
+                cart.add(line);
                 System.out.println("✔️ Đã thêm vào giỏ hàng.");
             }
 
             if (cart.isEmpty()) {
                 System.out.println("ℹ️ Hủy thanh toán vì giỏ hàng trống.");
+                return;
+            }
+
+            // Xác nhận lại với khách trước khi COMMIT
+            double expectedTotal = 0;
+            StringBuilder summary = new StringBuilder();
+            for (OrderDetail d : cart) {
+                expectedTotal += d.getSubTotal();
+                summary.append(String.format("   - %-25s x %-3d = %s%n",
+                        truncate(d.getProductName(), 25), d.getQuantity(), MoneyUtils.format(d.getSubTotal())));
+            }
+            System.out.println("\n--- [ XÁC NHẬN HÓA ĐƠN ] ---");
+            System.out.println("Khách hàng: " + customerName.trim());
+            System.out.print(summary);
+            System.out.println("Tổng cộng: " + MoneyUtils.format(expectedTotal));
+            String confirm = readString("Xác nhận thanh toán? (Y/N): ");
+            if (!confirm.equalsIgnoreCase("Y")) {
+                System.out.println("ℹ️ Đã hủy thanh toán, không có dữ liệu nào được ghi.");
                 return;
             }
 
@@ -220,7 +238,7 @@ public class ConsoleMenu {
                 System.out.println("\n" + "-".repeat(60));
                 System.out.printf("Mã HĐ: #%-5d | Khách hàng: %-18s | Ngày tạo: %s\n",
                         o.getId(), o.getCustomerName(), o.getCreatedAt());
-                System.out.printf("Tổng thanh toán: %s\n", currencyFormatter.format(o.getTotalAmount()));
+                System.out.printf("Tổng thanh toán: %s\n", MoneyUtils.format(o.getTotalAmount()));
                 System.out.println("Chi tiết các món:");
                 
                 List<OrderDetail> details = orderService.getOrderDetails(o.getId());
@@ -228,8 +246,8 @@ public class ConsoleMenu {
                     System.out.printf("   + %-20s x %-3d | Đơn giá: %-12s | Thành tiền: %s\n",
                             truncate(d.getProductName(), 20),
                             d.getQuantity(),
-                            currencyFormatter.format(d.getUnitPrice()),
-                            currencyFormatter.format(d.getSubTotal()));
+                            MoneyUtils.format(d.getUnitPrice()),
+                            MoneyUtils.format(d.getSubTotal()));
                 }
             }
             System.out.println("-".repeat(60));
@@ -243,7 +261,7 @@ public class ConsoleMenu {
         try {
             double total = orderService.getTotalRevenue();
             System.out.println("=================================================");
-            System.out.println(" 💰 TỔNG DOANH THU TOÀN CỬA HÀNG: " + currencyFormatter.format(total));
+            System.out.println(" 💰 TỔNG DOANH THU TOÀN CỬA HÀNG: " + MoneyUtils.format(total));
             System.out.println("=================================================");
         } catch (Exception e) {
             System.err.println("❌ Lỗi tính toán doanh thu: " + e.getMessage());
@@ -265,9 +283,9 @@ public class ConsoleMenu {
         while (true) {
             System.out.print(prompt);
             try {
-                return Double.parseDouble(scanner.nextLine().trim());
+                return MoneyUtils.parse(scanner.nextLine());
             } catch (NumberFormatException e) {
-                System.out.println("⚠️ Vui lòng nhập số thực hợp lệ!");
+                System.out.println("⚠️ Vui lòng nhập số thực hợp lệ (ví dụ: 1500000 hoặc 1.500.000)!");
             }
         }
     }

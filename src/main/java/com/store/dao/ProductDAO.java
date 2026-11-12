@@ -13,8 +13,10 @@ public interface ProductDAO {
     List<Product> searchProducts(String keyword) throws SQLException;
     Product getProductById(int id) throws SQLException;
     Product getProductById(Connection conn, int id) throws SQLException;
+    Product getProductByIdForUpdate(Connection conn, int id) throws SQLException;
     boolean addProduct(Product product) throws SQLException;
     boolean updateProduct(Product product) throws SQLException;
     boolean softDeleteProduct(int id) throws SQLException;
-    void decreaseStock(Connection conn, int productId, int quantity) throws SQLException;
+    boolean decreaseStock(Connection conn, int productId, int quantity) throws SQLException;
 }
+

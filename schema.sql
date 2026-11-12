@@ -6,7 +6,7 @@ USE quanlycuahang;
 CREATE TABLE IF NOT EXISTS categories (
     category_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
-    description VARCHAR(255)
+    UNIQUE KEY uk_categories_name (name)
 );
 
 -- 2. Bảng Sản phẩm (Khóa chính là product_id, Khóa ngoại category_id)
@@ -18,7 +18,12 @@ CREATE TABLE IF NOT EXISTS products (
     category_id INT,
     status BOOLEAN DEFAULT TRUE,
     import_price DECIMAL(10,2) DEFAULT 0,
-    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+    CONSTRAINT fk_products_category FOREIGN KEY (category_id) REFERENCES categories(category_id),
+    CONSTRAINT chk_products_quantity CHECK (quantity >= 0),
+    CONSTRAINT chk_products_price CHECK (price >= 0),
+    KEY idx_products_status (status),
+    KEY idx_products_category (category_id),
+    KEY idx_products_name (name)
 );
 
 -- 3. Bảng Hóa đơn
@@ -26,7 +31,8 @@ CREATE TABLE IF NOT EXISTS orders (
     order_id INT PRIMARY KEY AUTO_INCREMENT,
     customer_name VARCHAR(100) DEFAULT 'Khach vang lai',
     total_amount DOUBLE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_orders_created_at (created_at)
 );
 
 -- 4. Bảng Chi tiết hóa đơn (PK kep: order_id + product_id)
@@ -36,19 +42,20 @@ CREATE TABLE IF NOT EXISTS order_details (
     quantity INT NOT NULL,
     unit_price DOUBLE NOT NULL,
     PRIMARY KEY (order_id, product_id),
-    FOREIGN KEY (order_id) REFERENCES orders(order_id),
-    FOREIGN KEY (product_id) REFERENCES products(product_id)
+    CONSTRAINT fk_order_details_order FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
+    CONSTRAINT fk_order_details_product FOREIGN KEY (product_id) REFERENCES products(product_id),
+    CONSTRAINT chk_order_details_quantity CHECK (quantity > 0)
 );
 
 -- Dữ liệu mẫu khởi tạo ban đầu
-INSERT INTO categories (name, description) VALUES 
-('Điện thoại', 'Thiết bị di động thông minh'),
-('Phụ kiện', 'Cáp sạc, tai nghe, ốp lưng')
-ON DUPLICATE KEY UPDATE name=name;
+-- (Dùng INSERT IGNORE để chạy lại file nhiều lần không bị nhân đôi dữ liệu)
+INSERT IGNORE INTO categories (category_id, name) VALUES
+(1, 'Điện thoại'),
+(2, 'Phụ kiện');
 
-INSERT INTO products (name, price, quantity, category_id, status) VALUES 
-('iPhone 15 Pro Max', 29000000, 10, 1, TRUE),
-('Samsung Galaxy S24', 21000000, 4, 1, TRUE),
-('Củ sạc nhanh Anker 30W', 450000, 5, 2, TRUE),
-('Tai nghe Bluetooth TWS', 790000, 2, 2, TRUE)
-ON DUPLICATE KEY UPDATE name=name;
+INSERT IGNORE INTO products (product_id, name, price, quantity, category_id, status) VALUES
+(1, 'iPhone 15 Pro Max', 29000000, 10, 1, TRUE),
+(2, 'Samsung Galaxy S24', 21000000, 4, 1, TRUE),
+(3, 'Củ sạc nhanh Anker 30W', 450000, 5, 2, TRUE),
+(4, 'Tai nghe Bluetooth TWS', 790000, 2, 2, TRUE);
+

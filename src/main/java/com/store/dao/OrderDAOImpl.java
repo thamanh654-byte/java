@@ -54,6 +54,27 @@ public class OrderDAOImpl implements OrderDAO {
         }
     }
 
+    /**
+     * Thêm nhiều dòng chi tiết trong một lần gửi (batch) thay vì N lần round-trip.
+     */
+    @Override
+    public void insertOrderDetails(Connection conn, List<OrderDetail> details) throws SQLException {
+        if (details == null || details.isEmpty()) {
+            return;
+        }
+        String sql = "INSERT INTO order_details (order_id, product_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            for (OrderDetail detail : details) {
+                ps.setInt(1, detail.getOrderId());
+                ps.setInt(2, detail.getProductId());
+                ps.setInt(3, detail.getQuantity());
+                ps.setDouble(4, detail.getUnitPrice());
+                ps.addBatch();
+            }
+            ps.executeBatch();
+        }
+    }
+
     // ----------------------------------------------------------------
     // Lay danh sach tat ca hoa don (order_id, customer_name, total_amount, created_at)
     // ----------------------------------------------------------------
@@ -124,5 +145,18 @@ public class OrderDAOImpl implements OrderDAO {
             }
         }
         return 0.0;
+    }
+
+    // ----------------------------------------------------------------
+    // Dem tong so hoa don (dung cho thong ke nhanh, khong can load het du lieu)
+    // ----------------------------------------------------------------
+    @Override
+    public int countOrders() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM orders";
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            return rs.next() ? rs.getInt(1) : 0;
+        }
     }
 }
